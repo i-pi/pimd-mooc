@@ -1,7 +1,7 @@
 <simulation verbosity='high'>
   <output prefix='simulation'>
-    <properties stride='1' filename='out'>  [ time{picosecond}, conserved, temperature{kelvin}, kinetic_md, kinetic_cv, kinetic_cv(O), kinetic_cv(H), potential ] </properties>
-    <trajectory filename='pos' format='xyz' stride='2'> positions{angstrom} </trajectory>  </output>
+    <properties stride='1' filename='out'>  [ time{picosecond}, temperature{kelvin}, kinetic_md, potential, conserved ] </properties>
+    <trajectory filename='pos' format='xyz' stride='10'> positions{angstrom} </trajectory>  </output>
   <total_steps>1000</total_steps>
   <prng>
     <seed>23658</seed>
@@ -29,7 +29,7 @@
       <dynamics mode='nvt'>
         <timestep units='femtosecond'>0.5</timestep>
         <thermostat mode='langevin'>
-          <tau units='femtosecond'> 100</tau>
+          <tau units='femtosecond'> 10</tau>
         </thermostat>
       </dynamics>
     </motion>
