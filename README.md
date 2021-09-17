@@ -1,2 +1,2 @@
 # pimd-mooc
-Interactive tutorials for the PIMD Massive Open Online Course
+Interactive tutorials for the Massive Open Online Course "Path Integrals in Atomistic Modeling"
