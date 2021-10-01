@@ -1,8 +1,9 @@
 import sys, os
 import ase
-from ipi.utils.io import read_file
+import numpy as np
+import re
 
-def add_ipi_paths(base="~/i-pi/"):
+def add_ipi_paths(base=os.path.expanduser("~")+"/i-pi/"):
     """ Adds to system paths so that one can run from the jupyter 
     notebooks without any settings after having just cloned the i-PI repo
     and compiled the FORTRAN driver. """
@@ -12,6 +13,8 @@ def add_ipi_paths(base="~/i-pi/"):
     
 def read_ipi_xyz(filename):
     """ Reads a file in xyz i-PI format and returns it in ASE format. """
+    
+    from ipi.utils.io import read_file
     file_handle = open(filename, "r")
     frames = []
     while True:
@@ -25,3 +28,31 @@ def read_ipi_xyz(filename):
         except:
             raise
     return frames
+
+def read_ipi_output(filename):
+    """ Reads an i-PI output file and returns a dictionary with the properties in a tidy order. """
+    
+    f = open(filename, "r")
+    
+    regex = re.compile(".*column *([0-9]*) *--> ([a-z_]*)")
+    
+    fields = []; cols = []
+    for line in f:
+        if line[0] == "#":
+            match = regex.match(line)
+            if match is None:
+                print("Malformed comment line: ", line)
+                raise ValueError()
+            fields.append(match.group(2))
+            cols.append(slice(int(match.group(1))-1,int(match.group(1))))
+        else:
+            break # done with header
+    f.close()
+    
+    columns = {}
+    raw = np.loadtxt(filename)
+    for i, c in enumerate(fields):
+        columns[c] = raw[:,cols[i]].T
+        if columns[c].shape[0] == 1:
+            columns[c].shape = columns[c].shape[1]
+    return columns
