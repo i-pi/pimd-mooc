@@ -1,9 +1,8 @@
 <simulation verbosity='medium'>
-  <output prefix='md-ts_XXX'>
+  <output prefix='md-langevin_XXX'>
     <properties stride='1' filename='out'>  [ time{picosecond}, temperature{kelvin}, kinetic_md, potential, conserved ] </properties>
-    <trajectory filename='pos' format='xyz' stride='10'> positions{angstrom} </trajectory>  
-  </output>
-  <total_steps>4000</total_steps>
+    <trajectory filename='pos' format='xyz' stride='10'> positions{angstrom} </trajectory>  </output>
+  <total_steps> 20000</total_steps>
   <prng>
     <seed>23658</seed>
   </prng>
@@ -16,7 +15,7 @@
   <system>
     <initialize nbeads='1'>
       <file mode='xyz' units='angstrom'> h2o-32.xyz </file>
-      <velocities mode='thermal' units='kelvin'> 300 </velocities>
+      <velocities mode='thermal' units='kelvin'> 1 </velocities>
     </initialize>
     <forces>
       <force forcefield='driver'/>
@@ -26,8 +25,11 @@
     </ensemble>
     <motion mode='dynamics'>
       <fixcom>True</fixcom>
-      <dynamics mode='nve'>
-        <timestep units='femtosecond'> -- enter timestep here --  </timestep>
+      <dynamics mode='nvt'>
+         <timestep units='femtosecond'> 0.5 </timestep>
+         <thermostat mode='langevin'>
+             <tau units='femtosecond'> <!--- add relaxation time here --> </tau>
+         </thermostat>        
       </dynamics>
     </motion>
   </system>
