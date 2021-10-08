@@ -1,7 +1,8 @@
 <simulation verbosity='medium'>
   <output prefix='md-ts_XXX'>
     <properties stride='1' filename='out'>  [ time{picosecond}, temperature{kelvin}, kinetic_md, potential, conserved ] </properties>
-    <trajectory filename='pos' format='xyz' stride='10'> positions{angstrom} </trajectory>  </output>
+    <trajectory filename='pos' format='xyz' stride='10'> positions{angstrom} </trajectory>  
+  </output>
   <total_steps>4000</total_steps>
   <prng>
     <seed>23658</seed>
