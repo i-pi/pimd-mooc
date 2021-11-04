@@ -57,7 +57,7 @@ def read_ipi_output(filename):
             columns[c].shape = columns[c].shape[1]
     return columns
 
-def correlate(x, y, xbar=None, ybar=None):
+def correlate(x, y, xbar=None, ybar=None, normalize=True):
     """ Computes the correlation function of two quantities. 
        It can be given the exact averages as parameters."""
     if xbar is None:
@@ -65,14 +65,14 @@ def correlate(x, y, xbar=None, ybar=None):
     if ybar is None:
         ybar = y.mean()
         
-    cf = np.correlate(x - xbar, y - ybar, mode='same')#/((x-xbar)*(y-ybar)).sum()
-    return cf[len(x)//2:]
+    cf = np.correlate(x - xbar, y - ybar, mode='same')
+    return cf[len(x)//2:]/(((x-xbar)*(y-ybar)).sum() if normalize else 1)
 
-def autocorrelate(x, xbar=None):
+def autocorrelate(x, xbar=None, normalize=True):
     """ Computes the autocorrelation function of a trajectory. 
     It can be given the exact average as a parameter"""
     
     if xbar is None:
         xbar = x.mean()
-    acf = np.correlate(x - xbar, x-xbar, mode='same')#/((x-xbar)**2).sum()
-    return acf[len(x)//2:]
+    acf = np.correlate(x - xbar, x-xbar, mode='same')
+    return acf[len(x)//2:]/(((x-xbar)*(x-xbar)).sum() if normalize else 1)
