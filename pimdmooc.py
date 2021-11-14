@@ -22,7 +22,7 @@ def read_ipi_xyz(filename):
             ret = read_file("xyz", file_handle)
             frames.append(ase.Atoms(ret["atoms"].names, 
                                     positions=ret["atoms"].q.reshape((-1,3))*0.529177, 
-                                    cell=ret["cell"].h.T*0.529177))
+                                    cell=ret["cell"].h.T*0.529177, pbc=True))
         except EOFError:
             break
         except:

@@ -1,8 +1,10 @@
 <simulation verbosity='medium'>
   <output prefix='md-gle_XXX'>
-    <properties stride='1' filename='out'>  [ time{picosecond}, temperature{kelvin}, kinetic_md, potential, conserved ] </properties>
-    <trajectory filename='pos' format='xyz' stride='10'> positions{angstrom} </trajectory>  </output>
-  <total_steps> 20000</total_steps>
+    <properties stride='2' filename='out'>  [ time{picosecond}, temperature{kelvin}, kinetic_md, potential, conserved ] </properties>
+    <trajectory filename='pos' format='xyz' stride='10'> positions{angstrom} </trajectory>  
+    <trajectory filename='vel' format='xyz' stride='2'>  velocities          </trajectory>    
+  </output>
+  <total_steps>40000</total_steps>
   <prng>
     <seed>23658</seed>
   </prng>
@@ -14,8 +16,8 @@
   </ffsocket>
   <system>
     <initialize nbeads='1'>
-      <file mode='xyz' units='angstrom'> h2o-32.xyz </file>
-      <velocities mode='thermal' units='kelvin'> 1 </velocities>
+      <file mode='xyz' units='angstrom'> h2o-32_equilibrated.xyz </file>
+      <velocities mode='thermal' units='kelvin'> 300 </velocities>
     </initialize>
     <forces>
       <force forcefield='driver'/>

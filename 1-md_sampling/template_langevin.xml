@@ -1,8 +1,9 @@
 <simulation verbosity='medium'>
   <output prefix='md-langevin_XXX'>
     <properties stride='1' filename='out'>  [ time{picosecond}, temperature{kelvin}, kinetic_md, potential, conserved ] </properties>
-    <trajectory filename='pos' format='xyz' stride='10'> positions{angstrom} </trajectory>  </output>
-  <total_steps> 20000</total_steps>
+    <trajectory filename='pos' format='xyz' stride='10' cell_units='angstrom'> positions{angstrom} </trajectory>
+  </output>
+  <total_steps> 40000</total_steps>
   <prng>
     <seed>23658</seed>
   </prng>
