@@ -34,7 +34,7 @@ def read_ipi_output(filename):
     
     f = open(filename, "r")
     
-    regex = re.compile(".*column *([0-9]*) *--> ([a-z_]*)")
+    regex = re.compile(".*column *([0-9]*) *--> ([^ {]*)")
     
     fields = []; cols = []
     for line in f:
