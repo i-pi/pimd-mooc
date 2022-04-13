@@ -1,0 +1,39 @@
+<simulation verbosity='high'>
+  <output prefix='simulation'>
+    <properties filename='out'>  [ step, time{picosecond}, conserved, temperature{kelvin}, kinetic_cv, potential, pressure_cv{megapascal} ] </properties>
+    <trajectory filename='xc' stride='1'> x_centroid{angstrom} </trajectory>
+    <trajectory filename='vc' stride='1'> v_centroid </trajectory>
+    <checkpoint stride='4000'/>
+  </output>
+  <total_steps> 10000 </total_steps>
+  <prng>
+    <seed>32415</seed>
+  </prng>
+  <ffsocket name='lammps' mode='unix'>
+    <address> h2o-molecule </address>
+  </ffsocket>
+  <system>
+    <!-- change number of beads here -->
+    <initialize nbeads='--INSERT-HERE--'>
+      <file mode='xyz'> ../../h2o-molecule.xyz </file>
+      <!-- change temperature here -->
+      <velocities mode='thermal' units='kelvin'> --INSERT-HERE-- </velocities>
+    </initialize>
+    <forces>
+      <force forcefield='lammps'> </force>
+    </forces>
+    <motion mode='dynamics'>
+      <dynamics mode='nvt'>
+        <timestep units='femtosecond'> 0.25 </timestep>
+        <thermostat mode='pile_g'>
+          <tau units='femtosecond'> 100 </tau>
+          <pile_lambda> 0.5 </pile_lambda>
+        </thermostat>
+      </dynamics>
+    </motion>
+    <ensemble>
+      <!-- change temperature here -->
+      <temperature units='kelvin'> --INSERT-HERE-- </temperature>
+    </ensemble>
+  </system>
+</simulation>
