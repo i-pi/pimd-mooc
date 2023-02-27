@@ -19,10 +19,6 @@ Syntax:
    python rdf_ppi.py "prefix" "simulation temperature (in Kelvin)" "element A" "element B" "number of bins for RDF"
    "minimum distance (in Angstroms)" "maximum distance (in Angstroms) "number of time frames to skip in the beginning
    of each file (default 0)"
-
-WARNING:
-   Since the python code for computing RDF is inefficient the fortran function in f90 folder must be compiled to
-   compute RDFs.
 """
 
 import numpy as np
@@ -35,19 +31,10 @@ from ipi.utils.io import read_file
 
 def RDF(prefix, filetype, A, B, nbins, r_min, r_max, width, ss=0, unit='angstrom'):
 
-    # Adding fortran functions (when exist)
-    try:
-        import fortran
-    except:
-        print('WARNING: No compiled fortran module for fast calculations have been found.\n'
-              'Proceeding the calculations is not possible.')
-        sys.exit(0)
-
     skipSteps = int(ss)                                                  # steps to skip
     nbins = int(nbins)
 
     fns_pos = sorted(glob.glob(prefix + ".pos*"))
-    #print(fns_pos)
     fn_out_rdf = prefix + '.' + A + B + ".rdf.dat"
     fn_out_rdf2 = prefix + '.' + A + B + ".rdf2.dat" 
     fn_out_rdf3 = prefix + '.' + A + B + ".rdf3.dat" 
@@ -78,7 +65,7 @@ def RDF(prefix, filetype, A, B, nbins, r_min, r_max, width, ss=0, unit='angstrom
 
     # RDF auxiliary variables
     cell = None         # simulation cell matrix
-    inverseCell = None  # inverse simulation sell matrix
+    inverseCell = None  # inverse simulation cell matrix
     cellVolume = None   # simulation cell volume
     natomsA = 0  # the total number of A type particles in the system
     natomsB = 0  # the total number of B type particles in the system
@@ -121,37 +108,13 @@ def RDF(prefix, filetype, A, B, nbins, r_min, r_max, width, ss=0, unit='angstrom
                     posA[bead, :] = pos[bead, species_A]
                     posB[bead, :] = pos[bead, species_B]
 
-                fortran.updaterdf(rdf, posA, posB, natomsA / 3, natomsB / 3, nbins, r_min, r_max, cell,
-                                   inverseCell, nbeads, speciesMass[0], speciesMass[1])#, forma.T)
+                rdf = updateRDF(rdf, posA, posB, natomsA/3, natomsB/3, r_min, r_max, cell, inverseCell, nbeads, A, B)
 
                 ifr += 1
 
             else:
                 ifr += 1
             
-
-#            if ifr > skipSteps and ifr % 1000 == 0:
-#
-#                rdfG[:, 1] = np.sum(forma * rdf.T[1].astype(int), axis=1)
-#
-#                # Some constants
-#                if(A==B): 
-#                    const = 2./(natomsA*(natomsB-1))
-#                else:
-#                    const = 1./(natomsA*natomsB)
-#                const /= float(ifr - skipSteps)
-#
-#            #    # Normalization
-#                _rdf = np.copy(rdfG)
-#                _rdf[:, 1] *= const / nbeads
-#                
-#                # Creating RDF from N(r)
-#                const, dr = cellVolume / (4 * np.pi / 3.0), _rdf[1, 0] - _rdf[0, 0]
-#                _rdf[:, 1] = const * _rdf[:, 1] * dr / ((_rdf[:, 0] + 0.5 * dr)**3 - (_rdf[:, 0] - 0.5 * dr)**3)
-#                _rdf[:, 0] = unit_to_user('length', unit, _rdf[:, 0])
-#                
-#                # Writing the results into files
-#                np.savetxt(fn_out_rdf, _rdf)
 
         else:
             # Get the kernel density smoothed RDF by summing the contrbutions.
@@ -175,6 +138,36 @@ def RDF(prefix, filetype, A, B, nbins, r_min, r_max, width, ss=0, unit='angstrom
             
             # Writing the results into files
             np.savetxt(fn_out_rdf, _rdf)
+
+def updateRDF(gOOr, atxyz1, atxyz2, nat1, nat2, r_min, r_max, h, ainv, nbeads, A, B):
+    # histogram step initialization
+    deltar = gOOr[1,0] - gOOr[0,0]
+    nat1 = int(nat1)
+    nat2 = int(nat2)
+   
+    # start computing RDF from MD snapshots
+    for ih in range(nbeads):
+        for ia in range(nat1):
+            if A == B :
+                ibmin = ia
+            else:
+                ibmin = 0
+            for ib in range(ibmin,nat2):
+                # computing the minimum distance of the closest image of atom B to atom A using minimum image convention
+                dAB = calcMinDist(h,ainv,atxyz1[ih,3*ia:3*(ia+1)],atxyz2[ih,3*ib:3*(ib+1)])
+                if dAB < r_max and dAB > r_min:
+                    ig = int((dAB-r_min)/deltar)   # bin/histogram position
+                    gOOr[ig,1] = gOOr[ig,1] + 1.0
+    return gOOr
+
+def calcMinDist(h, ainv, rA, rB):
+    rAB = rA - rB
+    sAB = np.matmul(ainv,rAB)
+    sAB = sAB - np.round(sAB)   # imposing MIC on sAB in range [-0.5:+0.5]
+    rAB = np.matmul(h,sAB)
+    dAB = np.linalg.norm(rAB)
+    return dAB
+
 
 def main(*arg):
 
