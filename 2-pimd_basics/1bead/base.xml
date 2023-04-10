@@ -19,7 +19,7 @@
   <!-- system specifications. this defines the physical system and the evolution "rules" (i.e. the integrator) -->
   <system>
     <!-- initialize from an external file, the nbeads attribute determines the size of the ring polymer -->
-    <initialize nbeads="6">
+    <initialize nbeads="1">
       <file mode="xyz"> h2o_32_equi.xyz </file>
       <velocities mode="thermal" units="kelvin"> 300 </velocities>
     </initialize>
