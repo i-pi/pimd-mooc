@@ -1,10 +1,11 @@
 <simulation verbosity='medium'>
   <output prefix='simulation'>
-    <properties filename='out' stride='100'> [ step, time, conserved, temperature, kinetic_opsc, kinetic_tdsc, potential ] </properties>
-    <trajectory filename='pos' stride='100'> positions </trajectory>
-    <checkpoint stride='100'/>
+    <properties filename='out' stride='100'> [ step, time, conserved, temperature, kinetic_cv, kinetic_td, potential ] </properties>
+    <properties filename='pos' stride='100'> [ atom_x(0;0), atom_x(0;-1) ] </properties>
+    <trajectory filename='for' stride='100'> forces </trajectory>
+    <checkpoint stride='1000'/>
   </output>
-  <total_steps> 100000 </total_steps>
+  <total_steps> 10000 </total_steps>
   <prng>
     <seed>32415</seed>
   </prng>
@@ -17,16 +18,20 @@
     <initialize nbeads='1'>
       <file mode='xyz'> ../../init-model.xyz </file>
       <masses mode='manual'> [1.0] </masses>
-      <velocities mode='thermal' units='kelvin'> 1 </velocities>
+      <velocities mode='thermal'> 1 </velocities>
     </initialize>
     <forces>
       <force forcefield='debye'> </force>
     </forces>
+
+    <normal_modes>
+        <open_paths> [0] </open_paths>
+    </normal_modes>
+
     <motion mode='dynamics'>
       <fixcom> False </fixcom>
-      <dynamics mode='sc'>
+      <dynamics mode='nvt'>
         <timestep> 0.01 </timestep>
-        <nmts> [1] </nmts>
         <thermostat mode='pile_l'>
           <tau> 10 </tau>
           <pile_lambda> 0.5 </pile_lambda>
