@@ -1,0 +1,40 @@
+<simulation verbosity='medium'>
+  <output prefix='simulation'>
+    <properties filename='out' stride='100'> [ step, time, conserved, temperature, kinetic_cv, kinetic_td, potential ] </properties>
+    <trajectory filename='pos' stride='100'> positions </trajectory>
+    <checkpoint stride='1000'/>
+  </output>
+  <total_steps> 100000 </total_steps>
+  <prng>
+    <seed>32415</seed>
+  </prng>
+  <ffdebye name='debye'>
+    <hessian shape='(3,3)' mode='file'> ../../hessian.data </hessian>
+    <x_reference mode='file'> ../../ref.data  </x_reference>
+  </ffdebye>
+  <system>
+    <!-- change number of beads here -->
+    <initialize nbeads='1'>
+      <file mode='xyz'> ../../init-model.xyz </file>
+      <masses mode='manual'> [1.0] </masses>
+      <velocities mode='thermal'> 1 </velocities>
+    </initialize>
+    <forces>
+      <force forcefield='debye'> </force>
+    </forces>
+    <motion mode='dynamics'>
+      <fixcom> False </fixcom>
+      <dynamics mode='nvt'>
+        <timestep> 0.01 </timestep>
+        <thermostat mode='pile_l'>
+          <tau> 10 </tau>
+          <pile_lambda> 0.5 </pile_lambda>
+        </thermostat>
+      </dynamics>
+    </motion>
+    <ensemble>
+      <!-- change temperature here -->
+      <temperature> 1 </temperature>
+    </ensemble>
+  </system>
+</simulation>

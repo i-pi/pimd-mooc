@@ -1,0 +1,46 @@
+<simulation verbosity="medium">
+  <!-- specification of output files. property(options){units}, format, stride, etc. -->
+  <output prefix="base_p-6">
+    <properties stride="4" filename="out"> [ step, time{picosecond}, conserved, temperature{kelvin}, kinetic_cv, potential] </properties>
+    <trajectory filename="pos" stride="40" cell_units="angstrom" format="pdb"> positions{angstrom} </trajectory> 
+    <!-- checkpoint filename="chk" stride="4000" overwrite="true"/> -->
+  </output>
+  <total_steps> 4000 </total_steps>
+  <prng>
+     <seed>32345</seed>
+  </prng>
+  <!-- "forcefield" section. will use an external driver communicating over a UNIX socket -->
+  <ffsocket mode='unix' pbc='false' name='driver'>
+    <address>driver</address>
+    <port>31400</port>
+    <latency>0.02</latency>
+    <timeout>400</timeout>
+  </ffsocket>
+  <!-- system specifications. this defines the physical system and the evolution "rules" (i.e. the integrator) -->
+  <system>
+    <!-- initialize from an external file, the nbeads attribute determines the size of the ring polymer -->
+    <initialize nbeads="6">
+      <file mode="xyz"> h2o_32_equi.xyz </file>
+      <velocities mode="thermal" units="kelvin"> 300 </velocities>
+    </initialize>
+    <!-- the <force> section specifies which ff should be used to describe interactions. as we will see,
+         here one can combine multiple force providers, if desired -->
+    <forces>
+      <force forcefield="driver"> </force>
+    </forces>
+    <!-- how will we evolve the system? with MD, of course! -->
+    <motion mode='dynamics'>
+      <dynamics mode="nvt">  <!-- constant temperature integrator - will use a simple PILE-G for the moment -->
+        <thermostat mode="pile_g">
+          <tau units="femtosecond"> 50 </tau>
+          <pile_lambda> 0.5 </pile_lambda>
+        </thermostat>
+        <timestep units="femtosecond"> 0.25</timestep> <!-- this is a conservative choice for MD, but it is safe also with PIMD@300K -->
+      </dynamics>
+    </motion>
+    <ensemble> <!-- ensemble specification. here we basically just state what is the temperature -->
+      <temperature units="kelvin"> 300 </temperature>
+    </ensemble>
+  </system>
+</simulation>
+
